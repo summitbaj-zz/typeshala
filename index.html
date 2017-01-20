@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<link rel="stylesheet" href="css/style.css" media="screen" />
+<body>
+
+	<div id="container">
+		<div class="score">
+			<div id="hits">0</div>
+			<div id="misses">10</div>
+		</div>
+		<div id="input">  Type Something !!</div>
+	</div>
+
+	<script type="text/javascript">
+		(function() {
+
+			function getRandom(min, max) {
+				return Math.floor(Math.random()*(max-min+1)+min);
+			}
+
+			function getStrings()
+			{
+				var text = "";
+				var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+				var stringLength = getRandom(1,3);
+				for( var i=0; i < stringLength; i++ )
+					text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+				return text;
+			}
+
+			var IsPause = false;
+			var gameState= false;
+			var numberOfChars = 10;
+			var containerWidth =  document.getElementById('container').offsetWidth;
+			var containerHeight = document.getElementById('container').offsetHeight; 
+			var pipeWidth	= 80;
+			var playerChar="";
+
+
+			function Background(){
+				this.element;
+				this.x= 0;
+				this.init = function() {
+					this.element = document.getElementById('container');
+					this.element.style.backgroundPosition = "0px 0px"; 
+				}
+
+				this.move = function(){
+					this.x = this.x+2;
+					this.element.style.backgroundPosition = " 0px "+ ( - this.x ) +"px"; 
+				}
+
+			}
+
+			function Chars() {
+				this.x = 0;
+				this.y = 0;
+				this.left = 1;
+				this.type = 0;
+				this.isPause = false;
+				this.element;
+				this.text;
+				//For blaster
+				this.slope=0;
+				this.targetX=0;
+				this.targetY=0;
+				this.charID=0;
+				
+
+				this.init = function() {
+					this.element = document.createElement('div');
+					if(this.type==0){
+						this.element.setAttribute('class', 'char');
+					}else{
+						this.element.setAttribute('class', 'blaster');
+
+					}
+					this.element.style.top = this.y + 'px';
+					this.element.style.left = this.x + 'px';
+					this.text = getStrings();
+					this.element.innerHTML = this.text;
+					document.getElementById('container').appendChild(this.element);
+					}
+
+					this.redraw = function() {
+						this.element.innerHTML = this.text;
+						this.element.style.top = this.y + 'px';
+					this.element.style.left = this.x + 'px';	
+					}
+
+				this.pause = function(){
+					this.isPause = true;
+				}
+
+				this.resume = function(){
+					this.isPause = false;
+				} 
+				
+				this.moveBack = function(){
+					this.isPause = false;
+					this.text = getStrings();
+					this.element.innerHTML = this.text;	
+					this.y = - getRandom(100,400);
+					
+					
+				}
+
+	}
+
+	function TypeBox(){
+
+		this.element;
+		this.init = function(){
+
+			this.element=document.getElementById('input');
+		}
+
+		this.fill = function(){
+			if(playerChar != ""){
+				this.element.innerHTML = '';
+
+				this.element.innerHTML= playerChar;
+			}
+			else{
+
+				this.element.innerHTML = 'Type Something!!';
+
+			}
+		}
+	}
+	function Score(){
+
+		this.hits;
+		this.misses;
+		this.element1;
+		this.element;
+
+		this.init = function(){
+			this.hits=0;
+			this.misses=0;
+			this.element1 = document.getElementById('hits');
+			this.element2 = document.getElementById('misses');
+			this.element1.innerHTML = this.hits;
+			this.element2.innerHTML = this.misses;
+		}
+
+		this.update = function(){
+			this.element1.innerHTML = this.hits;
+			this.element2.innerHTML = this.misses;
+
+		}			
+	}
+
+	function gameStart() 
+	{
+		var that = this;
+		var score = new Score();
+		var background = new Background();
+		var typeBox = new TypeBox();
+		this.chars = [];
+		this.blasters = [];
+
+		this.init = function() 
+		{
+			gameState=false;
+			background.init();
+			typeBox.init();
+			score.init();
+
+			for(var i=0; i<numberOfChars; i++)
+			{
+				var char = new Chars();
+				char.x = getRandom(1,10)*(containerWidth/10);
+				char.y = - (parseInt(i / 2))*200;
+				char.left =getRandom(0,1);
+				char.init();
+				that.chars.push(char);
+			}
+
+			startGame = setInterval(this.animate, 20);
+
+		}
+		
+
+		this.animate= function()
+		{
+
+			background.move();
+			
+			document.onkeypress = function (e) 
+			{
+				var keyPress;
+				if( e.keyCode  == 32 )
+				{		
+					playerChar="";
+				}
+				else
+				{
+					if (typeof event !== 'undefined') {
+						keyPress = event.keyCode;
+					}
+					else if (e) {
+						keyPress = e.which;
+					}
+
+
+					playerChar+=String.fromCharCode(keyPress);
+				}
+				typeBox.fill();
+	  		return false;   // Prevents the default action
+
+
+
+	  	};
+
+	  	for(var i=0; i < that.blasters.length; i++)
+	  	{
+	  		var blaster = that.blasters[i];
+	  		blaster.y--;
+	  		blaster.x=blaster.slope*(blaster.y-blaster.targetY)+blaster.targetX;
+	  		if(blaster.x-blaster.targetX ==0 && blaster.y-blaster.targetY==0)
+	  		{
+	  			that.chars[blaster.charID].moveBack();
+	  		}
+	  		blaster.redraw();
+	  	}
+
+	  	for(var i=0; i<numberOfChars; i++)
+	  	{
+
+	  		var char = that.chars[i];
+
+	  		if(char.text == playerChar)
+	  		{
+	  			score.hits++;
+	  			playerChar ="";
+
+	  			var blast = new Chars();
+	  			blast.x=parseInt(containerWidth/2);
+	  			blast.y=parseInt(containerHeight-200);
+	  			blast.type = 1;
+	  			blast.init();
+	  			blast.text = char.text;
+	  			blast.targetX = char.x;
+	  			blast.targetY = char.y;
+	  			blast.slope = (blast.x-blast.targetX)/(blast.y-blast.targetY);
+	  			blast.charID = i;
+	  			console.log('x1:'+char.x+' x2:'+blast.x+' y1:'+char.y+' y2:'+blast.y+' slope:'+blast.slope);
+	  			blast.redraw();
+	  			that.blasters.push(blast)
+	  			char.pause();
+	  		}
+
+	  		if(char.y > containerHeight-200){
+	  			char.y= - getRandom(1,2)*200;
+	  			score.misses++;
+	  		}
+	  		
+	  		else
+	  		{
+	  			if(!char.isPause)
+	  			{
+	  				char.y++; 
+	  			}
+	  		}
+	  		score.update();
+	  		char.redraw();
+
+	  	}
+
+
+	  }
+
+	}
+	new gameStart().init();
+})();
+</script>
+</body>
+</html>

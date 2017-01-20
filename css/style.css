@@ -1,0 +1,95 @@
+@font-face 
+{
+font-family: keyFont;
+src: url('../fonts/font.otf');
+}
+@font-face 
+{
+font-family: PixelFont;
+src: url('../fonts/Gamer.ttf');
+}
+
+* {
+padding: 0px;
+margin: 0px;
+}
+
+div.char{
+position: absolute;
+z-index: 1;
+font-family: 'keyFont';
+background-color: #fff;
+color: #757474;
+font-size: 2em;
+border-radius: 10px;
+padding: 10px;
+
+}
+
+div.blaster{
+position: absolute;
+z-index: 1;
+font-family: 'keyFont';
+background-color: #c6deff;
+color: #287bf1;
+border:#000 2px solid;
+font-size: 2em;
+border-radius: 10px;
+padding: 10px;
+animation: blinker 1s linear infinite;
+}
+@keyframes blinker {  
+  50% { opacity: 0; }
+}
+
+div#input{
+border-radius: 15px;
+background-color: #fff;
+width: 92%;
+margin: 4%;
+padding:20px;
+text-align: center;
+font-size: 20px;
+position: absolute;
+bottom: 10px;
+z-index: 2;
+}
+
+.score{
+
+position: absolute;
+right: 10px;
+top: 10px;
+font-family: 'PixelFont';
+padding: 10px;
+margin: 10px;
+text-align: center;
+z-index: 3;
+font-size: 6em;
+color: #fff;
+text-shadow: 4px 4px 0px #000;
+}
+
+#dialogue{
+font-family: 'PixelFont';
+padding: 10%;
+top: 20%;
+font-size: xx-large;
+color: chocolate;
+display: block;
+background: rgba(255,193,7,0.5);
+text-align: center;
+position: absolute;
+width: 60%;
+z-index: 3;
+margin: 10%;
+
+}
+#container {
+overflow:hidden;
+background-image:url(../images/background.jpg);
+height: 100vh;
+border: 1px solid black;
+position: relative;
+display: block;
+}
